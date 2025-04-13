@@ -1,0 +1,23 @@
+// app/layout.js
+import Footer from './components/Footer';
+import './globals.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+export const metadata = {
+  title: 'SriAdz',
+  description: 'Classified Ads Platform',
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="bg-[#0d0d0d] text-white min-h-screen">
+        {children}
+        <Footer/>
+        <ToastContainer position="top-center" autoClose={3000} />
+      </body>
+      
+    </html>
+  );
+}
