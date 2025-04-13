@@ -3,15 +3,19 @@ import mongoose from 'mongoose';
 const adSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  location: { type: String, default: '' }, // Made optional as per frontend
-  image: { type: String, required: true }, // Stores file path for uploaded image
+  location: { type: String, default: '' },
+  image: { type: String, required: true },
   phone: { type: String, required: true },
-  whatsapp: { type: String, default: '' }, // Optional
-  telegram: { type: String, default: '' }, // Optional
+  whatsapp: { type: String, default: '' },
+  telegram: { type: String, default: '' },
   promotion: {
     type: String,
-    enum: ['normal', 'super', 'vip'],
-    default: 'normal',
+    enum: ['normal', 'super', 'vip', 'chatbox'],
+    required: true, // Make required
+  },
+  cashbackGuarantee: {
+    type: Boolean,
+    default: false,
   },
   isApproved: {
     type: Boolean,

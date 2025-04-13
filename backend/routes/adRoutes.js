@@ -5,7 +5,8 @@ import {
   getMyAds,
   updateAd,
   deleteAd,
-  getSingleAd
+  getSingleAd,
+  submitPayment
 } from '../controllers/adController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -16,6 +17,7 @@ router.post('/', protect, createAd);
 router.get('/mine', protect, getMyAds);
 router.put('/:id', protect, updateAd);
 router.delete('/:id', protect, deleteAd);
+router.post('/payment', protect, submitPayment);
 
 // Public
 router.get('/', getAllAds);

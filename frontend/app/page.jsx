@@ -31,7 +31,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-[#0d0d0d] min-h-screen w-full overflow-x-hidden">
-      <Navbar />
+
       <SearchBar className="px-10"/>
 
       <div className="px-4 sm:px-6 lg:px-10 pt-10 pb-24 max-w-[1600px] mx-auto">

@@ -13,31 +13,41 @@ export default function PostAdPage() {
     title: '',
     description: '',
     location: '',
-    image: null, // Changed to store file object
+    image: null,
     phone: '',
     whatsapp: '',
     telegram: '',
     amount: '',
     referenceNote: '',
-    bankSlip: null, // Added for bank slip
+    bankSlip: null,
+    promotion: '', // Ad type
+    cashbackGuarantee: false, // Cashback option
   });
-
   const [orderId, setOrderId] = useState(null);
+  const [adId, setAdId] = useState(null);
   const [posting, setPosting] = useState(false);
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const router = useRouter();
 
+  const generateOrderId = () => {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    return `#SZ${randomNum}`;
+  };
+
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setFormData({ ...formData, [name]: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    const { name, value, files, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : type === 'checkbox' ? checked : type === 'radio' ? value : value,
+    });
   };
 
   const validateStep = () => {
     if (step === 1) {
+      if (!formData.promotion) {
+        toast.error('Please select an ad type.');
+        return false;
+      }
       if (!formData.title.trim() || !formData.description.trim()) {
         toast.error('Title and description are required.');
         return false;
@@ -58,7 +68,7 @@ export default function PostAdPage() {
     }
     if (step === 3) {
       if (!formData.amount || isNaN(formData.amount) || formData.amount <= 0) {
-        toast.error('Please enter a valid payment amount.');
+        toast.error('Invalid payment amount.');
         return false;
       }
       if (!formData.bankSlip) {
@@ -77,32 +87,48 @@ export default function PostAdPage() {
       setPosting(true);
       try {
         const token = localStorage.getItem('token');
+        if (!token) throw new Error('Please log in to post an ad.');
+
         const formDataToSend = new FormData();
-        Object.keys(formData).forEach((key) => {
-          if (key === 'image' || key === 'bankSlip') {
-            if (formData[key]) formDataToSend.append(key, formData[key]);
-          } else {
-            formDataToSend.append(key, formData[key]);
-          }
-        });
+        formDataToSend.append('title', formData.title);
+        formDataToSend.append('description', formData.description);
+        formDataToSend.append('location', formData.location || '');
+        formDataToSend.append('image', formData.image);
+        formDataToSend.append('phone', formData.phone);
+        formDataToSend.append('whatsapp', formData.whatsapp);
+        formDataToSend.append('telegram', formData.telegram);
+        formDataToSend.append('promotion', formData.promotion);
+        formDataToSend.append('cashbackGuarantee', formData.cashbackGuarantee);
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formDataToSend,
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
+        if (!res.ok) throw new Error(data.message || 'Failed to post ad');
 
-        toast.success('✅ Ad created. Proceed to payment...');
-        setOrderId(data.orderId);
-        setFormData((prev) => ({ ...prev, orderId: data.orderId }));
+        setAdId(data.ad._id);
+        setOrderId(generateOrderId());
+
+        // Calculate amount based on promotion and cashback
+        const baseAmount =
+          formData.promotion === 'chatbox' ? 10000 :
+          formData.promotion === 'vip' ? 4500 :
+          formData.promotion === 'super' ? 1200 : 700;
+        const totalAmount = formData.cashbackGuarantee ? baseAmount + 500 : baseAmount;
+
+        setFormData((prev) => ({
+          ...prev,
+          amount: totalAmount.toString(),
+        }));
+
+        toast.info('🧾 Please complete your payment to post your ad.');
         setStep(3);
       } catch (err) {
-        toast.error(err.message || 'Failed to post ad.');
+        console.error('Ad posting error:', err);
+        toast.error(err.message || 'Failed to post ad. Please try again.');
       } finally {
         setPosting(false);
       }
@@ -113,13 +139,38 @@ export default function PostAdPage() {
 
   const prevStep = () => setStep((prev) => prev - 1);
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
     if (!validateStep()) return;
+
     setSubmittingPayment(true);
-    toast.success('🎉 Success! Redirecting to My Account...');
-    setTimeout(() => {
-      router.push('/account');
-    }, 2000);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Please log in to submit payment.');
+
+      const paymentForm = new FormData();
+      paymentForm.append('amount', formData.amount);
+      paymentForm.append('referenceNote', formData.referenceNote);
+      paymentForm.append('bankSlip', formData.bankSlip);
+      paymentForm.append('adId', adId);
+      paymentForm.append('orderId', orderId);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/payment`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: paymentForm,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to submit payment');
+
+      toast.success('🎉 Your ad was posted successfully and will be active within a few minutes.');
+      setTimeout(() => router.push('/account'), 2000);
+    } catch (err) {
+      console.error('Payment submission error:', err);
+      toast.error(err.message || 'Failed to submit payment. Please try again.');
+    } finally {
+      setSubmittingPayment(false);
+    }
   };
 
   return (
@@ -156,9 +207,7 @@ export default function PostAdPage() {
             onClick={nextStep}
             disabled={posting}
             className={`px-4 py-2 rounded text-white ml-auto ${
-              posting
-                ? 'bg-gray-500 cursor-not-allowed'
-                : 'bg-[#ff3399] hover:bg-pink-600'
+              posting ? 'bg-gray-500 cursor-not-allowed' : 'bg-[#ff3399] hover:bg-pink-600'
             }`}
           >
             {posting ? 'Posting...' : 'Continue →'}

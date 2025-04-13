@@ -55,15 +55,21 @@ export default function MyAccount() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {ads.map((ad) => (
-            <div key={ad._id} className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden shadow hover:shadow-pink-500/20 transition-all">
+            <div key={ad._id} className="bg-[#1a1a1a] border-2 border-[#333] rounded-xl overflow-hidden shadow hover:shadow-pink-500/20 transition-all">
               <div className="flex">
                 <div className="w-40 h-44 relative">
-                  <Image
-                    src={ad.image || '/no-image.jpg'}
-                    alt={ad.title}
-                    fill
-                    className="object-cover rounded-l-xl"
-                  />
+                <Image
+                  src={
+                    ad.image?.startsWith('http')
+                      ? ad.image
+                      : `http://localhost:5000/${ad.image}`
+                  }
+                  alt={ad.title}
+                  width={160}
+                  height={130}
+                  className="object-cover rounded-l-xl"
+                />
+
                 </div>
                 <div className="flex-1 p-4 flex flex-col justify-between">
                   <div>

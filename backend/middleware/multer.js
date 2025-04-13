@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(
       null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalName)
+      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname) // ✅ fixed here
     );
   },
 });
@@ -32,4 +32,4 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-export default upload;//image upload middleware
+export default upload;

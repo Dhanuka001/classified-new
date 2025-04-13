@@ -3,11 +3,7 @@ import Payment from '../models/Payment.js'
 import upload from '../middleware/multer.js';
 
 export const createAd = [
-  // Multer middleware to handle file uploads
-  upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'bankSlip', maxCount: 1 },
-  ]),
+  upload.fields([{ name: 'image', maxCount: 1 }]),
   async (req, res) => {
     try {
       const {
@@ -18,13 +14,12 @@ export const createAd = [
         whatsapp,
         telegram,
         promotion,
+        cashbackGuarantee,
         page,
         position,
-        amount,
-        referenceNote,
       } = req.body;
 
-      // Validate required fields
+      // Validations
       if (!title || !title.trim()) {
         return res.status(400).json({ message: '📝 Title is required.' });
       }
@@ -32,25 +27,15 @@ export const createAd = [
         return res.status(400).json({ message: '📝 Description is required.' });
       }
       if (!phone || !/^\+?\d{10,12}$/.test(phone)) {
-        return res
-          .status(400)
-          .json({ message: '📞 Valid phone number is required.' });
+        return res.status(400).json({ message: '📞 Valid phone number is required.' });
       }
-      if (!req.files.image) {
+      if (!req.files?.image) {
         return res.status(400).json({ message: '🖼️ Ad image is required.' });
       }
-      if (!amount || isNaN(amount) || amount <= 0) {
-        return res
-          .status(400)
-          .json({ message: '💰 Valid payment amount is required.' });
-      }
-      if (!req.files.bankSlip) {
-        return res
-          .status(400)
-          .json({ message: '📄 Bank slip upload is required.' });
+      if (!promotion || !['normal', 'super', 'vip', 'chatbox'].includes(promotion)) {
+        return res.status(400).json({ message: 'Invalid ad type.' });
       }
 
-      // Create Ad
       const ad = await Ad.create({
         title,
         description,
@@ -59,19 +44,39 @@ export const createAd = [
         phone,
         whatsapp: whatsapp || '',
         telegram: telegram || '',
-        promotion: promotion || 'normal',
+        promotion,
+        cashbackGuarantee: cashbackGuarantee === 'true', // Convert string to boolean
         page: page || 'home',
         position: position || 'top',
         createdBy: req.user._id,
       });
 
-      // Generate unique Order ID
+      res.status(201).json({ message: '✅ Ad created successfully.', ad });
+    } catch (err) {
+      console.error('Ad creation error:', err.message);
+      res.status(500).json({ message: '❌ Something went wrong' });
+    }
+  },
+];
+
+
+export const submitPayment = [
+  upload.fields([{ name: 'bankSlip', maxCount: 1 }]),
+  async (req, res) => {
+    try {
+      const { adId, amount, referenceNote } = req.body;
+
+      if (!adId) return res.status(400).json({ message: 'Ad ID required.' });
+      if (!req.files.bankSlip) return res.status(400).json({ message: '📄 Bank slip is required.' });
+      if (!amount || isNaN(amount) || amount <= 0) {
+        return res.status(400).json({ message: '💰 Valid payment amount is required.' });
+      }
+
       const orderId = `#SZ${Math.floor(100000 + Math.random() * 900000)}`;
 
-      // Store Payment
       const payment = await Payment.create({
         orderId,
-        adId: ad._id,
+        adId,
         userId: req.user._id,
         amount: parseFloat(amount),
         referenceNote: referenceNote || '',
@@ -79,16 +84,16 @@ export const createAd = [
       });
 
       res.status(201).json({
-        message: '🎉 Ad posted. Payment info saved. Waiting for approval.',
-        ad,
+        message: '🎉 Payment submitted. Waiting for approval.',
         orderId,
       });
     } catch (err) {
-      console.error('Ad & payment creation error:', err.message);
-      res.status(500).json({ message: '❌ Something went wrong' });
+      console.error('Payment creation error:', err.message);
+      res.status(500).json({ message: '❌ Failed to submit payment.' });
     }
-  },
+  }
 ];
+
 
 
 // ✅ Get All Approved Ads (Public)
