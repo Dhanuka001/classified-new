@@ -62,7 +62,7 @@ export default function MyAccount() {
                   src={
                     ad.image?.startsWith('http')
                       ? ad.image
-                      : `http://localhost:5000/${ad.image}`
+                      : `https://classified-new.onrender.com/${ad.image}`
                   }
                   alt={ad.title}
                   width={160}
