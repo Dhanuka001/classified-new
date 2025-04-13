@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // leave it empty or include other options like reactStrictMode
+  reactStrictMode: true,
+  images: {
+    domains: ['localhost', 'https://classified-new.onrender.com'], // replace this!
+  },
 };
 
 export default nextConfig;
