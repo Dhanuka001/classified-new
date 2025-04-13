@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: ['localhost'],
-    },
-  };
-  
-  export default nextConfig;
-  
+  // leave it empty or include other options like reactStrictMode
+};
+
+export default nextConfig;
