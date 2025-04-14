@@ -16,7 +16,7 @@ export default function MyAccount() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error('Unauthorized. Please log in.');
+      toast.error('Unauthorized. Please log in.', { position: 'top-center' });
       setLoading(false);
       return;
     }
@@ -24,12 +24,12 @@ export default function MyAccount() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/mine`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) setAds(data);
-        else toast.error(data.message || 'Failed to load ads.');
+        else toast.error(data.message || 'Failed to load ads.', { position: 'top-center' });
       })
-      .catch(() => toast.error('Something went wrong.'))
+      .catch(() => toast.error('Something went wrong.', { position: 'top-center' }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -43,9 +43,18 @@ export default function MyAccount() {
     setDeleteTarget(null);
   };
 
+  // Construct image URL
+  const getImageUrl = (image) => {
+    if (!image) return '/no-image.jpg';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace('/api', '');
+    return image.startsWith('http') ? image : `${baseUrl}/${image}`;
+  };
+
   return (
     <div className="min-h-screen px-4 py-10 max-w-6xl mx-auto text-white">
-      <h1 className="text-3xl font-bold mb-8 text-[#ff3399]">👤 My Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-8 text-[#ff3399] flex items-center gap-2">
+        <span>👤</span> My Dashboard
+      </h1>
 
       <h2 className="text-lg font-bold mb-2 text-white">My Ads</h2>
       {loading ? (
@@ -55,29 +64,31 @@ export default function MyAccount() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {ads.map((ad) => (
-            <div key={ad._id} className="bg-[#1a1a1a] border-2 border-[#333] rounded-xl overflow-hidden shadow hover:shadow-pink-500/20 transition-all">
+            <div
+              key={ad._id}
+              className="bg-[#1a1a1a] border-2 border-[#333] rounded-xl overflow-hidden shadow hover:shadow-pink-500/20 transition-all"
+            >
               <div className="flex">
                 <div className="w-40 h-44 relative">
-                <Image
-                  src={
-                    ad.image?.startsWith('http')
-                      ? ad.image
-                      : `https://classified-new.onrender.com/${ad.image}`
-                  }
-                  alt={ad.title}
-                  width={160}
-                  height={130}
-                  className="object-cover rounded-l-xl"
-                />
-
+                  <Image
+                    src={getImageUrl(ad.image)}
+                    alt={ad.title || 'Ad image'}
+                    width={160}
+                    height={130}
+                    className="object-cover rounded-l-xl"
+                  />
                 </div>
                 <div className="flex-1 p-4 flex flex-col justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-300">{ad.title}</h2>
-                    <p className="text-sm text-gray-400 line-clamp-2">{ad.description}</p>
+                    <h2 className="text-lg font-semibold text-gray-300">{ad.title || 'Untitled'}</h2>
+                    <p className="text-sm text-gray-400 line-clamp-2">{ad.description || 'No description'}</p>
                     <div className="flex text-xs gap-4 mt-2 text-gray-400">
-                      <span><FiMapPin size={12} className="inline" /> {ad.location}</span>
-                      <span className="font-semibold text-[#ff3399]"><FiEye size={12} className="inline font-semibold text-[#ff3399]" /> {ad.views || 0} views</span>
+                      <span>
+                        <FiMapPin size={12} className="inline" /> {ad.location || 'Unknown'}
+                      </span>
+                      <span className="font-semibold text-[#ff3399]">
+                        <FiEye size={12} className="inline" /> {ad.views || 0} views
+                      </span>
                     </div>
                     <div className="mt-1 text-xs">
                       Order ID: <span className="text-pink-400">{ad.orderId || 'N/A'}</span>
@@ -95,15 +106,17 @@ export default function MyAccount() {
                       onClick={() => setEditTarget(ad)}
                       className="p-2 border-2 border-pink-500 text-pink-400 rounded-full hover:bg-pink-500 hover:text-white transition"
                       title="Edit Ad"
+                      aria-label="Edit ad"
                     >
-                      <FiEdit className='text-pink-500'/>
+                      <FiEdit className="text-pink-500" size={16} />
                     </button>
                     <button
                       onClick={() => setDeleteTarget(ad)}
                       className="p-2 border-2 border-red-600 text-red-500 rounded-full hover:bg-red-600 hover:text-white transition"
                       title="Delete Ad"
+                      aria-label="Delete ad"
                     >
-                      <FiTrash2 className='text-red-600'/>
+                      <FiTrash2 className="text-red-600" size={16} />
                     </button>
                   </div>
                 </div>
@@ -117,7 +130,11 @@ export default function MyAccount() {
         <EditAdModal ad={editTarget} onClose={() => setEditTarget(null)} onUpdate={handleUpdate} />
       )}
       {deleteTarget && (
-        <DeleteConfirmModal ad={deleteTarget} onClose={() => setDeleteTarget(null)} onDelete={handleDelete} />
+        <DeleteConfirmModal
+          ad={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );

@@ -1,8 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   images: {
-    domains: ['localhost', 'https://classified-new.onrender.com'], // replace this!
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '172.20.10.4',
+        port: '5000',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'classified-new.onrender.com',
+        pathname: '/**',
+      },
+    ],
   },
 };
 
