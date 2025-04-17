@@ -23,13 +23,6 @@ export default function AdCard({ ad }) {
     normal: 'bg-gray-700'
   };
 
-  // ✅ Fix URL using ENV without `/api`
-  const getImageUrl = (url) => {
-    if (!url) return '/no-image.jpg';
-    if (url.startsWith('http')) return url;
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
-    return `${baseUrl}/${url}`;
-  };
 
   // ✅ Generate fake view count based on ad type
   const getFakeViews = () => {
@@ -47,10 +40,9 @@ export default function AdCard({ ad }) {
       <div className={cardClasses}>
         {/* Image */}
         <div className="relative w-[120px] sm:w-[140px] md:w-[150px] h-[120px] sm:h-[110px] md:h-[120px] flex-shrink-0">
-          <Image
-            src={getImageUrl(ad.image)}
+          <img
+            src={ad.image || '/no-image.jpg'}
             alt={ad.title}
-            fill
             className="object-cover"
           />
           <span className={`absolute top-1 left-1 text-[10px] px-2 py-[2px] rounded text-white font-semibold ${badgeColor[ad.promotion]}`}>

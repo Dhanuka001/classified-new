@@ -43,12 +43,6 @@ export default function MyAccount() {
     setDeleteTarget(null);
   };
 
-  // Construct image URL
-  const getImageUrl = (image) => {
-    if (!image) return '/no-image.jpg';
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace('/api', '');
-    return image.startsWith('http') ? image : `${baseUrl}/${image}`;
-  };
 
   return (
     <div className="min-h-screen px-4 py-10 max-w-6xl mx-auto text-white">
@@ -70,8 +64,8 @@ export default function MyAccount() {
             >
               <div className="flex">
                 <div className="w-40 h-44 relative">
-                  <Image
-                    src={getImageUrl(ad.image)}
+                  <img
+                    src={ad.image}
                     alt={ad.title || 'Ad image'}
                     width={160}
                     height={130}

@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { FaArrowUp, FaRegTrashAlt } from 'react-icons/fa';
 
@@ -6,12 +7,10 @@ export default function Step1AdDetails({ data, onChange }) {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Handle drag events
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -22,7 +21,6 @@ export default function Step1AdDetails({ data, onChange }) {
     }
   };
 
-  // Handle drop event
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -41,14 +39,12 @@ export default function Step1AdDetails({ data, onChange }) {
     }
   };
 
-  // Handle file input click
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       onChange(e);
     }
   };
 
-  // Handle delete image
   const handleDeleteImage = () => {
     const event = {
       target: {
@@ -63,8 +59,14 @@ export default function Step1AdDetails({ data, onChange }) {
     }
   };
 
-  // Generate image preview URL
   const previewUrl = data.image ? URL.createObjectURL(data.image) : null;
+
+  const categories = [
+    { display: 'Live Cam', slug: 'live-cam' },
+    { display: 'Girls Personal', slug: 'girls-personal' },
+    { display: 'Spa', slug: 'spa' },
+    { display: 'Shemale', slug: 'shemale' },
+  ];
 
   return (
     <div className="space-y-6 bg-[#1a1a1a] p-4 sm:p-6 rounded-lg border border-[#333]">
@@ -72,14 +74,55 @@ export default function Step1AdDetails({ data, onChange }) {
         📝 Ad Details / දැන්වීම් විස්තර
       </h2>
 
+      {/* Category Selection */}
+      <div>
+        <label className="block text-sm text-gray-300 mb-2">
+          Select Category / කාණ්ඩය තෝරන්න <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {categories.map((category) => (
+            <label
+              key={category.slug}
+              className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors min-h-[80px] ${
+                data.category === category.slug
+                  ? 'border-pink-500 bg-pink-500/10'
+                  : 'border-[#333] hover:bg-[#2a2a2a]'
+              }`}
+            >
+              <input
+                type="radio"
+                name="category"
+                value={category.slug}
+                checked={data.category === category.slug}
+                onChange={onChange}
+                className="hidden"
+                required
+              />
+              <div className="flex-1">
+                <h3 className="text-lg font-medium text-white">{category.display}</h3>
+              </div>
+              <div
+                className={`w-5 h-5 rounded-full border-2 ${
+                  data.category === category.slug
+                    ? 'border-pink-500 bg-pink-500'
+                    : 'border-gray-500'
+                } flex items-center justify-center`}
+              >
+                {data.category === category.slug && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                )}
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* Ad Type Selection */}
       <div>
         <label className="block text-sm text-gray-300 mb-2">
-          Select Ad Type / දැන්වීම් වර්ගය තෝරන්න{' '}
-          <span className="text-red-500">*</span>
+          Select Ad Type / දැන්වීම් වර්ගය තෝරන්න <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Normal Ad */}
           <label
             className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors min-h-[120px] ${
               data.promotion === 'normal'
@@ -114,7 +157,6 @@ export default function Step1AdDetails({ data, onChange }) {
             </div>
           </label>
 
-          {/* Super Ad */}
           <label
             className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors min-h-[120px] ${
               data.promotion === 'super'
@@ -149,7 +191,6 @@ export default function Step1AdDetails({ data, onChange }) {
             </div>
           </label>
 
-          {/* VIP Ad */}
           <label
             className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors min-h-[120px] ${
               data.promotion === 'vip'
@@ -184,7 +225,6 @@ export default function Step1AdDetails({ data, onChange }) {
             </div>
           </label>
 
-          {/* Chatbox Ad */}
           <label
             className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors min-h-[120px] ${
               data.promotion === 'chatbox'
@@ -221,7 +261,6 @@ export default function Step1AdDetails({ data, onChange }) {
         </div>
       </div>
 
-      {/* Cashback Guarantee */}
       <div>
         <label className="flex items-center space-x-2 cursor-pointer">
           <input
@@ -310,8 +349,7 @@ export default function Step1AdDetails({ data, onChange }) {
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
-          Upload Image / රූපය උඩුගත කරන්න{' '}
-          <span className="text-red-500">*</span>
+          Upload Image / රූපය උඩුගත කරන්න <span className="text-red-500">*</span>
         </label>
         <div
           className={`relative flex items-center justify-center w-full h-64 rounded-lg transition-colors ${

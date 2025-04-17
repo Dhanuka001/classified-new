@@ -14,12 +14,24 @@ export default function HomePage() {
   const [vipAds, setVipAds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const adsPerPage = 12;
 
+  const categories = [
+    { display: 'Live Cam', slug: 'live-cam' },
+    { display: 'Girls Personal', slug: 'girls-personal' },
+    { display: 'Spa', slug: 'spa' },
+    { display: 'Shemale', slug: 'shemale' },
+  ];
+
   useEffect(() => {
     setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`, {
+    const url = selectedCategory
+      ? `${process.env.NEXT_PUBLIC_API_URL}/ads?category=${selectedCategory}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/ads`;
+
+    fetch(url, {
       headers: { 'Content-Type': 'application/json' },
     })
       .then((res) => {
@@ -47,7 +59,7 @@ export default function HomePage() {
         setVipAds([]);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedCategory]);
 
   const indexOfLastAd = currentPage * adsPerPage;
   const indexOfFirstAd = indexOfLastAd - adsPerPage;
@@ -58,13 +70,34 @@ export default function HomePage() {
     <div className="min-h-screen w-full overflow-x-hidden">
 
       {/* Category Tabs */}
-      <div className="flex justify-center gap-4 sm:gap-6 pt-4 pb-4">
-        {['Live Cam', 'Girls Personal', 'Spa','Shemale'].map((category) => (
+      <div className="flex justify-center gap-2 sm:gap-4 pt-4 pb-2 px-4 overflow-x-auto">
+        <button
+          className={`text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg transition-colors whitespace-nowrap ${
+            !selectedCategory
+              ? 'bg-[#ff3399] text-white'
+              : 'bg-[#1a1a1a] hover:bg-[#ff3399]'
+          }`}
+          onClick={() => {
+            setSelectedCategory(null);
+            setCurrentPage(1);
+          }}
+        >
+          All
+        </button>
+        {categories.map((category) => (
           <button
-            key={category}
-            className="text-white text-sm sm:text-base font-semibold px-4 py-2 rounded-lg bg-[#1a1a1a] hover:bg-[#ff3399] hover:text-white transition-colors"
+            key={category.slug}
+            className={`text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg transition-colors whitespace-nowrap ${
+              selectedCategory === category.slug
+                ? 'bg-[#ff3399] text-white'
+                : 'bg-[#1a1a1a] hover:bg-[#ff3399]'
+            }`}
+            onClick={() => {
+              setSelectedCategory(category.slug);
+              setCurrentPage(1);
+            }}
           >
-            {category}
+            {category.display}
           </button>
         ))}
       </div>
@@ -74,7 +107,7 @@ export default function HomePage() {
         <SearchBar />
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-10 pt-1 pb-10 max-w-[1600px] mx-auto">
+      <div className="px-4 sm:px-6 lg:px-10 pt-2 pb-10 max-w-[1600px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-10 md:px-32">
           {/* Sidebar */}
           <div className="w-full lg:w-1/5 border-r md:pr-6 border-gray-700">

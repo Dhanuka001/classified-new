@@ -106,6 +106,12 @@ export default function Navbar() {
                     <FiUser /> My Account
                   </button>
                 </Link>
+
+                {user?.role =="admin" && (
+                  <Link href="/admin" className="text-[#ff3399] hover:underline">
+                    Admin Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 bg-red-700 text-white px-5 py-2 rounded-md shadow"

@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Step1AdDetails from '../components/Step1AdDetails';
@@ -10,6 +11,7 @@ import { toast } from 'react-toastify';
 export default function PostAdPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    category: '',
     title: '',
     description: '',
     location: '',
@@ -20,8 +22,8 @@ export default function PostAdPage() {
     amount: '',
     referenceNote: '',
     bankSlip: null,
-    promotion: '', // Ad type
-    cashbackGuarantee: false, // Cashback option
+    promotion: '',
+    cashbackGuarantee: false,
   });
   const [orderId, setOrderId] = useState(null);
   const [adId, setAdId] = useState(null);
@@ -44,16 +46,20 @@ export default function PostAdPage() {
 
   const validateStep = () => {
     if (step === 1) {
+      if (!formData.category) {
+        toast.error('Please select a category.', { position: 'top-center' });
+        return false;
+      }
       if (!formData.promotion) {
-        toast.error('Please select an ad type.');
+        toast.error('Please select an ad type.', { position: 'top-center' });
         return false;
       }
       if (!formData.title.trim() || !formData.description.trim()) {
-        toast.error('Title and description are required.');
+        toast.error('Title and description are required.', { position: 'top-center' });
         return false;
       }
       if (!formData.image) {
-        toast.error('Please upload an image.');
+        toast.error('Please upload an image.', { position: 'top-center' });
         return false;
       }
       return true;
@@ -61,18 +67,18 @@ export default function PostAdPage() {
     if (step === 2) {
       const phoneRegex = /^\+?\d{10,12}$/;
       if (!phoneRegex.test(formData.phone)) {
-        toast.error('Please enter a valid phone number.');
+        toast.error('Please enter a valid phone number.', { position: 'top-center' });
         return false;
       }
       return true;
     }
     if (step === 3) {
       if (!formData.amount || isNaN(formData.amount) || formData.amount <= 0) {
-        toast.error('Invalid payment amount.');
+        toast.error('Invalid payment amount.', { position: 'top-center' });
         return false;
       }
       if (!formData.bankSlip) {
-        toast.error('Please upload a bank slip.');
+        toast.error('Please upload a bank slip.', { position: 'top-center' });
         return false;
       }
       return true;
@@ -90,6 +96,7 @@ export default function PostAdPage() {
         if (!token) throw new Error('Please log in to post an ad.');
 
         const formDataToSend = new FormData();
+        formDataToSend.append('category', formData.category);
         formDataToSend.append('title', formData.title);
         formDataToSend.append('description', formData.description);
         formDataToSend.append('location', formData.location || '');
@@ -112,7 +119,6 @@ export default function PostAdPage() {
         setAdId(data.ad._id);
         setOrderId(generateOrderId());
 
-        // Calculate amount based on promotion and cashback
         const baseAmount =
           formData.promotion === 'chatbox' ? 10000 :
           formData.promotion === 'vip' ? 4500 :
@@ -124,11 +130,11 @@ export default function PostAdPage() {
           amount: totalAmount.toString(),
         }));
 
-        toast.info('🧾 Please complete your payment to post your ad.');
+        toast.info('🧾 Please complete your payment to post your ad.', { position: 'top-center' });
         setStep(3);
       } catch (err) {
         console.error('Ad posting error:', err);
-        toast.error(err.message || 'Failed to post ad. Please try again.');
+        toast.error(err.message || 'Failed to post ad. Please try again.', { position: 'top-center' });
       } finally {
         setPosting(false);
       }
@@ -163,11 +169,11 @@ export default function PostAdPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to submit payment');
 
-      toast.success('🎉 Your ad was posted successfully and will be active within a few minutes.');
+      toast.success('🎉 Your ad was posted successfully and will be active within a few minutes.', { position: 'top-center' });
       setTimeout(() => router.push('/account'), 2000);
     } catch (err) {
       console.error('Payment submission error:', err);
-      toast.error(err.message || 'Failed to submit payment. Please try again.');
+      toast.error(err.message || 'Failed to submit payment. Please try again.', { position: 'top-center' });
     } finally {
       setSubmittingPayment(false);
     }

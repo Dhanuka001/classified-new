@@ -1,12 +1,14 @@
 import Ad from '../models/Ad.js';
-import Payment from '../models/Payment.js'
+import Payment from '../models/Payment.js';
 import upload from '../middleware/multer.js';
 
+// ✅ Create Ad
 export const createAd = [
   upload.fields([{ name: 'image', maxCount: 1 }]),
   async (req, res) => {
     try {
       const {
+        category,
         title,
         description,
         location,
@@ -20,6 +22,9 @@ export const createAd = [
       } = req.body;
 
       // Validations
+      if (!category || !['live-cam', 'girls-personal', 'spa', 'shemale'].includes(category)) {
+        return res.status(400).json({ message: '📋 Valid category is required.' });
+      }
       if (!title || !title.trim()) {
         return res.status(400).json({ message: '📝 Title is required.' });
       }
@@ -37,15 +42,16 @@ export const createAd = [
       }
 
       const ad = await Ad.create({
+        category,
         title,
         description,
         location: location || '',
-        image: req.files.image[0].path,
+        image: req.files.image[0].path, // Cloudinary URL
         phone,
         whatsapp: whatsapp || '',
         telegram: telegram || '',
         promotion,
-        cashbackGuarantee: cashbackGuarantee === 'true', // Convert string to boolean
+        cashbackGuarantee: cashbackGuarantee === 'true',
         page: page || 'home',
         position: position || 'top',
         createdBy: req.user._id,
@@ -59,7 +65,7 @@ export const createAd = [
   },
 ];
 
-
+// ✅ Submit Payment
 export const submitPayment = [
   upload.fields([{ name: 'bankSlip', maxCount: 1 }]),
   async (req, res) => {
@@ -80,7 +86,7 @@ export const submitPayment = [
         userId: req.user._id,
         amount: parseFloat(amount),
         referenceNote: referenceNote || '',
-        bankSlip: req.files.bankSlip[0].path,
+        bankSlip: req.files.bankSlip[0].path, // Cloudinary URL
       });
 
       res.status(201).json({
@@ -91,15 +97,17 @@ export const submitPayment = [
       console.error('Payment creation error:', err.message);
       res.status(500).json({ message: '❌ Failed to submit payment.' });
     }
-  }
+  },
 ];
-
-
 
 // ✅ Get All Approved Ads (Public)
 export const getAllAds = async (req, res) => {
   try {
-    const ads = await Ad.find({ isApproved: true }).sort({ createdAt: -1 });
+    const { category } = req.query;
+    const query = category
+      ? { category, isApproved: true }
+      : { isApproved: true };
+    const ads = await Ad.find(query).sort({ createdAt: -1 });
     res.status(200).json(ads);
   } catch (err) {
     console.error('Get all ads error:', err.message);
@@ -121,6 +129,15 @@ export const getMyAds = async (req, res) => {
 // ✅ Update Ad
 export const updateAd = async (req, res) => {
   try {
+    const { category, title, description, location } = req.body;
+
+    if (category && !['live-cam', 'girls-personal', 'spa', 'shemale'].includes(category)) {
+      return res.status(400).json({ message: '📋 Invalid category.' });
+    }
+    if (title && !title.trim()) {
+      return res.status(400).json({ message: '📝 Title is required.' });
+    }
+
     const ad = await Ad.findOne({ _id: req.params.id, createdBy: req.user._id });
 
     if (!ad) {
@@ -132,7 +149,7 @@ export const updateAd = async (req, res) => {
 
     res.status(200).json({
       message: '✅ Your ad was updated successfully.',
-      ad
+      ad,
     });
   } catch (err) {
     console.error('Update ad error:', err.message);

@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
-const adSchema = new mongoose.Schema({
+const AdSchema = new mongoose.Schema({
+  category: {
+    type: String,
+    enum: ['live-cam', 'girls-personal', 'spa', 'shemale'],
+    required: true,
+  },
   title: { type: String, required: true },
   description: { type: String, required: true },
   location: { type: String, default: '' },
@@ -11,34 +16,15 @@ const adSchema = new mongoose.Schema({
   promotion: {
     type: String,
     enum: ['normal', 'super', 'vip', 'chatbox'],
-    required: true, // Make required
+    default: 'normal',
   },
-  cashbackGuarantee: {
-    type: Boolean,
-    default: false,
-  },
-  isApproved: {
-    type: Boolean,
-    default: false,
-  },
-  page: {
-    type: String,
-    default: 'home',
-  },
-  position: {
-    type: String,
-    enum: ['top', 'middle', 'bottom'],
-    default: 'top',
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  cashbackGuarantee: { type: Boolean, default: false },
+  page: { type: String, default: 'home' },
+  position: { type: String, default: 'middle' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  isApproved: { type: Boolean, default: false },
+  feedback: { type: String, default: '' }, // New field for rejection feedback
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Ad', adSchema);
+export default mongoose.model('Ad', AdSchema);
