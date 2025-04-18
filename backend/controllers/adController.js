@@ -55,6 +55,7 @@ export const createAd = [
         page: page || 'home',
         position: position || 'top',
         createdBy: req.user._id,
+        isApproved: req.user.role === 'admin',
       });
 
       res.status(201).json({ message: '✅ Ad created successfully.', ad });
