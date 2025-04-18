@@ -9,6 +9,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
     email: '',
     password: '',
     username: '',
+    phoneNumber: '', // ✅ added phone field
   });
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -34,17 +35,15 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
       toast.success(data.message || (isRegistering ? 'Registered!' : 'Success!'));
 
       if (!isRegistering && !isForgot) {
-        // ✅ Save and instantly update UI
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
-        onLogin && onLogin(data.user); // ✨ update navbar instantly
+        onLogin && onLogin(data.user);
         onClose();
       }
     } catch (err) {
       toast.error(err.message);
     }
   };
-  
 
   if (!isOpen) return null;
 
@@ -84,15 +83,26 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
             />
           )}
           {isRegistering && (
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={form.username}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md bg-[#0d0d0d] text-white border border-pink-500 outline-none"
-              required
-            />
+            <>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={form.username}
+                onChange={handleChange}
+                className="w-full px-4 py-2 rounded-md bg-[#0d0d0d] text-white border border-pink-500 outline-none"
+                required
+              />
+              <input
+                type="tel"
+                name="phoneNumber"
+                placeholder="Phone Number"
+                value={form.phoneNumber}
+                onChange={handleChange}
+                className="w-full px-4 py-2 rounded-md bg-[#0d0d0d] text-white border border-pink-500 outline-none"
+                required
+              />
+            </>
           )}
           <button
             type="submit"

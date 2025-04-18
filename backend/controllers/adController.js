@@ -131,31 +131,40 @@ export const updateAd = async (req, res) => {
   try {
     const { category, title, description, location } = req.body;
 
-    if (category && !['live-cam', 'girls-personal', 'spa', 'shemale'].includes(category)) {
+    if (!category || !['live-cam', 'girls-personal', 'spa', 'shemale'].includes(category)) {
       return res.status(400).json({ message: '📋 Invalid category.' });
     }
-    if (title && !title.trim()) {
+    if (!title || !title.trim()) {
       return res.status(400).json({ message: '📝 Title is required.' });
     }
 
     const ad = await Ad.findOne({ _id: req.params.id, createdBy: req.user._id });
-
     if (!ad) {
       return res.status(404).json({ message: '❌ Ad not found or you do not have permission.' });
     }
 
-    Object.assign(ad, req.body);
+    ad.title = title;
+    ad.description = description;
+    ad.location = location || '';
+    ad.category = category;
+
+    // ✅ If new image is uploaded, update it
+    if (req.file) {
+      ad.image = req.file.path; // Already uploaded to Cloudinary by multer middleware
+    }
+
     await ad.save();
 
     res.status(200).json({
       message: '✅ Your ad was updated successfully.',
-      ad,
+      updatedAd: ad,
     });
   } catch (err) {
     console.error('Update ad error:', err.message);
     res.status(500).json({ message: '❌ Failed to update ad. Try again later.' });
   }
 };
+
 
 // ✅ Delete Ad
 export const deleteAd = async (req, res) => {

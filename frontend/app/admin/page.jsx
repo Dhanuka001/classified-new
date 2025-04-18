@@ -7,72 +7,71 @@ import { toast } from 'react-toastify';
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     pendingAds: 0,
+    approvedAds: 0,
     users: 0,
-    payments: 0,
+    revenue: 0,
   });
+  const [filter, setFilter] = useState('thisMonth');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const [adsRes, usersRes, paymentsRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/ads/pending`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/payments`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        setStats({
-          pendingAds: adsRes.data.length,
-          users: usersRes.data.length,
-          payments: paymentsRes.data.length,
-        });
-      } catch (err) {
-        toast.error('Failed to load stats.', { position: 'top-center' });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
-  }, []);
+  }, [filter]);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/summary`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { filter },
+      });
+
+      setStats(res.data);
+    } catch (err) {
+      toast.error('Failed to load stats.', { position: 'top-center' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-[#ff3399] mb-6">Dashboard Overview</h2>
+      <h2 className="text-2xl font-bold text-[#ff3399] mb-4">Dashboard Overview</h2>
+
+      <div className="mb-6">
+        <label className="text-sm text-gray-300 mr-2">Filter by:</label>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="bg-[#0d0d0d] border border-[#333] text-white rounded px-3 py-1"
+        >
+          <option value="thisMonth">This Month</option>
+          <option value="last3Months">Last 3 Months</option>
+          <option value="last6Months">Last 6 Months</option>
+          <option value="thisYear">This Year</option>
+        </select>
+      </div>
+
       {loading ? (
         <p className="text-gray-400">Loading stats...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#1a1a1a] border border-[#333] p-6 rounded-lg shadow hover:shadow-pink-500/20 transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-300">Pending Ads</h3>
-            <p className="text-3xl font-bold text-[#ff3399]">{stats.pendingAds}</p>
-            <a href="/admin/ads" className="text-[#ff3399] hover:underline mt-2 inline-block">
-              Manage Ads
-            </a>
-          </div>
-          <div className="bg-[#1a1a1a] border border-[#333] p-6 rounded-lg shadow hover:shadow-pink-500/20 transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-300">Users</h3>
-            <p className="text-3xl font-bold text-[#ff3399]">{stats.users}</p>
-            <a href="/admin/users" className="text-[#ff3399] hover:underline mt-2 inline-block">
-              Manage Users
-            </a>
-          </div>
-          <div className="bg-[#1a1a1a] border border-[#333] p-6 rounded-lg shadow hover:shadow-pink-500/20 transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-300">Payments</h3>
-            <p className="text-3xl font-bold text-[#ff3399]">{stats.payments}</p>
-            <a href="/admin/payments" className="text-[#ff3399] hover:underline mt-2 inline-block">
-              View Payments
-            </a>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <DashboardCard title="Pending Ads" value={stats.pendingAds} color="#facc15" />
+          <DashboardCard title="Approved Ads" value={stats.approvedAds} color="#22c55e" />
+          <DashboardCard title="Total Users" value={stats.users} color="#3b82f6" />
+          <DashboardCard title="Revenue" value={`Rs. ${stats.revenue.toLocaleString()}`} color="#f50591" />
         </div>
       )}
+    </div>
+  );
+}
+
+function DashboardCard({ title, value, color }) {
+  return (
+    <div className="bg-[#1a1a1a] border border-[#333] p-6 rounded-lg shadow hover:shadow-pink-500/20 transition-shadow">
+      <h3 className="text-lg font-semibold text-gray-300">{title}</h3>
+      <p className="text-3xl font-bold" style={{ color }}>{value}</p>
     </div>
   );
 }

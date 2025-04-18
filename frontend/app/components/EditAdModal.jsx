@@ -1,61 +1,148 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
+import { FiX, FiEdit2 } from 'react-icons/fi';
 
 export default function EditAdModal({ ad, onClose, onUpdate }) {
-  const [form, setForm] = useState({ ...ad });
-  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState(ad.title || '');
+  const [description, setDescription] = useState(ad.description || '');
+  const [location, setLocation] = useState(ad.location || '');
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(ad.image);
+  const fileInputRef = useRef(null);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async () => {
-    setLoading(true);
-    const token = localStorage.getItem('token');
     try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('location', location);
+      formData.append('category', ad.category);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${ad._id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: formData,
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      toast.success('Ad updated successfully');
-      onUpdate(data);
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Update failed');
+      }
+
+      toast.success('Ad updated successfully!', { position: 'top-center' });
+      onUpdate(data.updatedAd);
     } catch (err) {
-      toast.error(err.message || 'Failed to update');
-    } finally {
-      setLoading(false);
+      toast.error(err.message, { position: 'top-center' });
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4">
-      <div className="bg-[#1a1a1a] p-6 rounded-lg border border-pink-500 w-full max-w-lg text-white">
-        <h2 className="text-xl font-bold text-pink-400 mb-4">✏️ Edit Ad</h2>
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#1a1a1a] border border-[#333] w-full max-w-lg rounded-lg p-6 text-white relative">
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-white"
+          onClick={onClose}
+        >
+          <FiX size={20} />
+        </button>
+        <h2 className="text-xl font-bold text-[#ff3399] mb-4">Edit Ad</h2>
 
-        <div className="mb-3">
-          <label className="text-sm text-gray-300 block mb-1">Title</label>
-          <input name="title" value={form.title} onChange={handleChange} className="input w-full px-3 py-2 rounded bg-[#0d0d0d] border border-pink-500 outline-none" />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-300">Title</label>
+            <input
+              className="w-full p-2 bg-[#0d0d0d] border border-[#333] rounded"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-300">Description</label>
+            <textarea
+              className="w-full p-2 bg-[#0d0d0d] border border-[#333] rounded"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-300">Location</label>
+            <input
+              className="w-full p-2 bg-[#0d0d0d] border border-[#333] rounded"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+
+          <div>
+        <label className="block text-sm text-gray-300">Category</label>
+        <input
+          className="w-full p-2 bg-[#0d0d0d] border border-[#333] rounded text-gray-400"
+          value={ad.category || ''}
+          disabled
+        />
+      </div>
+
+          {/* Image preview and custom edit button */}
+          <div className="relative text-center">
+          {preview && (
+            <img
+              src={preview}
+              alt="Ad preview"
+              className="max-w-full max-h-60 mx-auto rounded border border-[#444] object-contain"
+            />
+          )}
+          <button
+            className="absolute top-2 right-4 bg-[#0d0d0d] p-2 border border-[#444] rounded-full hover:bg-pink-600 hover:text-white transition"
+            onClick={() => fileInputRef.current.click()}
+            title="Edit Image"
+          >
+            <FiEdit2 />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
         </div>
 
-        <div className="mb-3">
-          <label className="text-sm text-gray-300 block mb-1">Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="input w-full px-3 py-2 rounded bg-[#0d0d0d] border border-pink-500 outline-none" />
         </div>
 
-        <div className="mb-3">
-          <label className="text-sm text-gray-300 block mb-1">Location</label>
-          <input name="location" value={form.location} onChange={handleChange} className="input w-full px-3 py-2 rounded bg-[#0d0d0d] border border-pink-500 outline-none" />
-        </div>
-
-        <div className="flex justify-end gap-3 mt-4">
-          <button onClick={onClose} className="px-4 py-2 border border-gray-600 text-white rounded hover:bg-gray-800">Cancel</button>
-          <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 border border-pink-500 text-pink-400 rounded hover:bg-pink-500 hover:text-white transition">
-            {loading ? 'Saving...' : 'Save'}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-[#ff3399] hover:bg-pink-600 rounded"
+          >
+            Save Changes
           </button>
         </div>
       </div>

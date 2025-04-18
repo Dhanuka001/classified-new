@@ -38,8 +38,10 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({ message: 'Registration successful. Check your email to verify.' });
   } catch (err) {
+    console.error('Registration error:', err); // 
     res.status(500).json({ message: 'Server error' });
   }
+  
 };
 
 // ✅ Verify Email

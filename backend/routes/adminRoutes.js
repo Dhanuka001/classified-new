@@ -2,7 +2,6 @@ import express from 'express';
 import { protect } from '../middleware/auth.js';
 import { isAdmin } from '../middleware/isAdmin.js';
 import {
-  getPendingAds,
   setAdStatus,
   bulkSetAdStatus,
   setAdPlacement,
@@ -10,6 +9,8 @@ import {
   getAllUsers,
   toggleUserStatus,
   getAllPayments,
+  getAdsByApproval,
+  getAdminSummary
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -18,11 +19,13 @@ const router = express.Router();
 router.use(protect, isAdmin);
 
 // Ads Management
-router.get('/ads/pending', getPendingAds); // Get pending ads with pagination
+router.get('/ads/pending', getAdsByApproval); // Get pending ads with pagination
 router.put('/ads/:id/status', setAdStatus); // Approve/reject single ad
 router.post('/ads/bulk-status', bulkSetAdStatus); // Bulk approve/reject ads
 router.put('/ads/:id/placement', setAdPlacement); // Set ad page/position
 router.delete('/ads/:id', deleteAnyAd); // Delete ad with Cloudinary cleanup
+router.get('/summary', getAdminSummary);
+
 
 // Users Management
 router.get('/users', getAllUsers); // Get all users with pagination and filters
