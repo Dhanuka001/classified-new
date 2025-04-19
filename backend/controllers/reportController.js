@@ -1,36 +1,36 @@
 import Report from '../models/Report.js';
 import Ad from '../models/Ad.js';
 
-// 🔘 Submit a report
-export const submitReport = async (req, res) => {
+// Create a new report
+export const createReport = async (req, res) => {
   try {
-    const { reason, reporterEmail, reporterPhone } = req.body;
-    const { id: adId } = req.params;
+    const { adId, message } = req.body;
 
-    const ad = await Ad.findById(adId);
-    if (!ad) return res.status(404).json({ message: 'Ad not found' });
+    if (!adId || !message.trim()) {
+      return res.status(400).json({ message: 'Ad ID and message are required.' });
+    }
 
-    const report = await Report.create({
-      adId,
-      reason,
-      reporterEmail,
-      reporterPhone
-    });
+    // Check if ad exists
+    const adExists = await Ad.findById(adId);
+    if (!adExists) {
+      return res.status(404).json({ message: 'Ad not found.' });
+    }
 
-    res.status(201).json({ message: '🛡️ Report submitted successfully. Thank you!', report });
+    const report = await Report.create({ adId, message });
+    res.status(201).json({ message: 'Ad reported successfully.', report });
   } catch (err) {
-    console.error('Report error:', err.message);
-    res.status(500).json({ message: '❌ Failed to submit report' });
+    console.error('Create report error:', err.message);
+    res.status(500).json({ message: 'Failed to submit report.' });
   }
 };
 
-// 👮 Admin View Reports
-export const getReports = async (req, res) => {
+// Admin - Get all reports
+export const getAllReports = async (req, res) => {
   try {
-    const reports = await Report.find().populate('adId').sort({ createdAt: -1 });
+    const reports = await Report.find().populate('adId');
     res.status(200).json(reports);
   } catch (err) {
-    console.error('Fetch reports error:', err.message);
-    res.status(500).json({ message: '❌ Failed to load reports' });
+    console.error('Get reports error:', err.message);
+    res.status(500).json({ message: 'Failed to load reports.' });
   }
 };

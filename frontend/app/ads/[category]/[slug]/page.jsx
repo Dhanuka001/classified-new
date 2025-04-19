@@ -8,7 +8,14 @@ import {
   FaPhone,
   FaHeart,
   FaArrowLeft,
+  FaFlag,
 } from 'react-icons/fa';
+import { getFakeViewsByType } from '@/utils/fakeViews';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ReactMarkdown from 'react-markdown';
+import Head from 'next/head';
+
 
 // 🔢 Format views to 1.2k+, 5k+, etc.
 function formatViews(views) {
@@ -18,10 +25,12 @@ function formatViews(views) {
 }
 
 export default function SingleAdPage() {
-  const { slug } = useParams();
+  const { category,slug } = useParams();
   const router = useRouter();
   const [ad, setAd] = useState(null);
   const [particles, setParticles] = useState([]);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
 
   useEffect(() => {
     const generateParticles = () => {
@@ -41,18 +50,94 @@ export default function SingleAdPage() {
   useEffect(() => {
     if (!slug) return;
     const id = slug.split('-').pop();
-    fetch(`http://172.20.10.4:3001/ads/${id}`)
+
+    if (!id || id.length !== 24) {
+        console.error('Invalid ad ID from slug:', id);
+        return;
+      }
+  
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${id}`)
       .then((res) => res.json())
       .then((data) => setAd(data))
       .catch((error) => console.error('Failed to fetch ad:', error));
   }, [slug]);
 
+
+  const handleReportSubmit = async () => {
+    if (!reportMessage.trim()) {
+      toast.warning('Please enter your complaint message.');
+      return;
+    }
+  
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reports/${ad._id}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adId: ad._id, message: reportMessage }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) throw new Error(data.message);
+  
+      toast.success('Report submitted successfully.');
+      setShowReportModal(false);
+      setReportMessage('');
+    } catch (err) {
+      toast.error(err.message || 'Failed to submit report.');
+    }
+  };
+  
+  
   if (!ad) {
     return <div className="text-white text-center py-20">Loading ad...</div>;
   }
 
   return (
     <>
+
+<Head>
+  <title>{`${ad.title} | SriAdz - ${ad.category}`}</title>
+  <meta name="description" content={ad.description?.slice(0, 150)} />
+  <link rel="canonical" href={`https://sriadz.com/ads/${category}/${slug}`} />
+
+  {/* Open Graph */}
+  <meta property="og:title" content={`${ad.title} | SriAdz`} />
+  <meta property="og:description" content={ad.description?.slice(0, 150)} />
+  <meta property="og:image" content={ad.image} />
+  <meta property="og:url" content={`https://sriadz.com/ads/${category}/${slug}`} />
+  <meta property="og:type" content="article" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={`${ad.title} | SriAdz`} />
+  <meta name="twitter:description" content={ad.description?.slice(0, 150)} />
+  <meta name="twitter:image" content={ad.image} />
+</Head>
+
+
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": ad.title,
+      "description": ad.description,
+      "image": ad.image,
+      "brand": {
+        "@type": "Organization",
+        "name": "SriAdz"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "LKR",
+        "availability": "https://schema.org/InStock"
+      }
+    }),
+  }}
+></script>
+
       <style jsx global>{`
         .space-bg {
           background: radial-gradient(circle at center, #0d0d0d 0%, #1a1a1a 100%);
@@ -194,7 +279,7 @@ export default function SingleAdPage() {
         .ad-image {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           border-radius: 8px;
         }
 
@@ -307,18 +392,23 @@ export default function SingleAdPage() {
             </button>
           </div>
 
+          {ad.cashbackGuarantee && (
           <div className="warning-box">
-            💡 සිතන්න: Cashback Guarantee ඇත – Rs.3000 ට අඩු ගෙවීම් සඳහා පමණි. සමහර photos සැබෑය, සමහරක් ව්‍යාජ විය හැක. ඔබේ ආරක්ෂාව සඳහා සැලකිලිමත් වන්න!
+            💡 Cashback Guarantee ලබාදෙන්නේ රු.3000 ට අඩු ගෙවීම් සඳහා පමණි.
+            සමහර ඡායාරූප සැබෑ වන අතර, සමහරක් ව්‍යාජ විය හැක.
+            ඔබේ ආරක්ෂාව සඳහා සැලකිලිමත් වන්න!
           </div>
-
+          )}
           <h1 className="ad-title">{ad.title}</h1>
 
-          {ad.cashback && (
-            <div className="cashback-badge">✅ Cashback Guaranteed</div>
+          {ad.cashbackGuarantee && (
+            <div className="inline-block bg-green-600 text-white text-sm px-3 py-[6px] rounded-full font-semibold mb-4 border border-white/10 shadow-md w-fit">
+              💸 Cashback Guaranteed
+            </div>
           )}
 
           <div className="ad-image-container">
-            <img src={ad.image} alt={ad.title} className="ad-image" />
+            <img src={ad.image} alt={`SriAdz - ${ad.title}`} className="ad-image" />
             {ad.promotion && (
               <div className="promotion-badge">{ad.promotion.toUpperCase()}</div>
             )}
@@ -326,41 +416,83 @@ export default function SingleAdPage() {
 
           <div className="info-summary">
             📍 {ad.location} •{' '}
-            <span className="view-count">👁 {formatViews(ad.views)} views</span> • ⏱️ Uploaded 3h ago
+            <span className="view-count">👁 {getFakeViewsByType(ad.promotion)} views</span> • ⏱️ Uploaded 3h ago
           </div>
 
           <div className="contact-buttons">
-            {ad.phone && (
-              <a href={`tel:${ad.phone}`} className="contact-btn phone-btn">
-                <FaPhone /> Call
-              </a>
-            )}
-            {ad.whatsapp && (
-              <a
-                href={`https://wa.me/${ad.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-btn whatsapp-btn"
-              >
-                <FaWhatsapp /> WhatsApp
-              </a>
-            )}
-            {ad.telegram && (
-              <a
-                href={`https://t.me/${ad.telegram}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-btn telegram-btn"
-              >
-                <FaTelegramPlane /> Telegram
-              </a>
-            )}
+          {ad.phone && (
+            <a href={`tel:${ad.phone}`} className="contact-btn phone-btn">
+              <FaPhone /> Call: {ad.phone}
+            </a>
+          )}
+          {ad.whatsapp && (
+            <a
+              href={`https://wa.me/${ad.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-btn whatsapp-btn"
+            >
+              <FaWhatsapp /> WhatsApp: {ad.whatsapp}
+            </a>
+          )}
+          {ad.telegram && (
+            <a
+              href={`https://t.me/${ad.telegram}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-btn telegram-btn"
+            >
+              <FaTelegramPlane /> Telegram: {ad.telegram}
+            </a>
+          )}
+        </div>
+
+
+         
+
+          <div className="description-box mb-4 prose prose-sm prose-invert max-w-none">
+            <h2 className="description-title">💋 Description</h2>
+            <ReactMarkdown>{ad.description}</ReactMarkdown>
           </div>
 
-          <div className="description-box">
-            <h2 className="description-title">💋 Description</h2>
-            {ad.description}
-          </div>
+              {/* 🚨 Report Ad Button */}
+           <button
+            onClick={() => setShowReportModal(true)}
+            className="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center justify-center mb-4 gap-2"
+          >
+            <FaFlag className="text-white" />
+            Report Ad / දැන්වීම සම්බන්ද පැමිණිලි
+          </button>
+
+          {/* 📝 Report Modal */}
+          {showReportModal && (
+            <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 p-2">
+              <div className="bg-[#1a1a1a] p-6 rounded-lg w-full max-w-md border border-pink-500">
+                <h2 className="text-white text-lg font-bold mb-2">Report Ad</h2>
+                <textarea
+                  rows={4}
+                  className="w-full rounded-md bg-black text-white border border-pink-500 p-2 mb-4"
+                  placeholder="Type your complaint or concern here..."
+                  value={reportMessage}
+                  onChange={(e) => setReportMessage(e.target.value)}
+                />
+                <div className="flex justify-end gap-4">
+                  <button
+                    className="px-4 py-2 text-sm rounded bg-gray-700 text-white hover:bg-gray-600"
+                    onClick={() => setShowReportModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-4 py-2 text-sm rounded bg-pink-600 text-white hover:bg-pink-500"
+                    onClick={handleReportSubmit}
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="notice-box">
             <div className="notice-title">

@@ -1,4 +1,4 @@
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaTimes } from 'react-icons/fa';
 
 export function SearchBar() {
   return (
@@ -17,53 +17,52 @@ export function SearchBar() {
   );
 }
 
-export function FilterSidebar() {
+export function FilterSidebar({ onSelectCategory, showSidebar, setShowSidebar }) {
   const quickLinks = [
-    'Girls Personal',
-    'Live Cam',
-    'Spa',
-    'Boys Personal',
-    'Shemale',
-    'Rent',
-    'Sale',
-    'Marriage Proposal',
-    'Toys & Accessories',
-    'Rooms',
-    'Lanka Ad',
-    'Lanka Job\'s'
+    { name: 'Girls Personal', slug: 'girls-personal' },
+    { name: 'Live Cam', slug: 'live-cam' },
+    { name: 'Spa', slug: 'spa' },
+    { name: 'Boys Personal', slug: 'boys-personal' },
+    { name: 'Shemale', slug: 'shemale' },
+    { name: 'Rent', slug: 'rent' },
+    { name: 'Sale', slug: 'sale' },
+    { name: 'Marriage Proposal', slug: 'marriage-proposal' },
+    { name: 'Toys & Accessories', slug: 'toys-accessories' },
+    { name: 'Rooms', slug: 'rooms' },
+    { name: 'Jobs', slug: 'jobs' },
   ];
 
   return (
-    <aside className="hidden lg:block w-full lg:w-[220px] bg-[#1a1a1a] p-4 rounded-md border border-pink-500 h-fit sticky top-6">
-      {/* Location Filter */}
-      <h3 className="text-white text-lg font-semibold mb-4">Filter</h3>
-      <div className="mb-6">
-        <label className="text-white text-sm block mb-1">Location</label>
-        <select className="w-full bg-black text-white border border-pink-500 rounded-md px-3 py-2">
-          <option value="">All</option>
-          <option value="Colombo">Colombo</option>
-          <option value="Kandy">Kandy</option>
-          <option value="Galle">Galle</option>
-        </select>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {showSidebar && (
+        <div className="fixed inset-0 bg-black/70 z-40 lg:hidden" onClick={() => setShowSidebar(false)} />
+      )}
 
-      {/* Quick Links */}
-      <div>
-        <h3 className="text-white text-lg font-semibold mb-3">Quick Links</h3>
-        <ul className="space-y-2">
+      <aside className={`fixed top-0 left-0 w-[260px] h-full bg-[#1a1a1a] p-4 border-r border-pink-500 z-50 transform transition-transform lg:relative lg:translate-x-0 ${showSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-white text-lg font-semibold mt-32 lg:mt-0">Quick Links</h3>
+          <button onClick={() => setShowSidebar(false)} className="lg:hidden text-white">
+            <FaTimes />
+          </button>
+        </div>
+        <ul className="space-y-2 ">
           {quickLinks.map((link, index) => (
             <li key={index}>
-              <a
-                href="#"
+              <button
+                onClick={() => {
+                  onSelectCategory(link.slug);
+                  setShowSidebar(false);
+                }}
                 className="flex items-center gap-2 text-sm text-pink-400 hover:text-white transition"
               >
-                <FaHeart className="text-[#ff3399] text-xs" />
-                {link}
-              </a>
+                <FaHeart className="text-[#ff3399]" />
+                {link.name}
+              </button>
             </li>
           ))}
         </ul>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

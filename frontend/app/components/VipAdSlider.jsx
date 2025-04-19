@@ -1,7 +1,9 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRef, useEffect } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { createSlug } from '@/utils/slugify';
 
 export default function VipAdSlider({ vipAds = [] }) {
   const scrollRef = useRef();
@@ -14,7 +16,6 @@ export default function VipAdSlider({ vipAds = [] }) {
     scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
   };
 
-  // Inject dotlottie script
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
@@ -35,7 +36,7 @@ export default function VipAdSlider({ vipAds = [] }) {
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-white text-lg font-semibold">VIP Ads</h2>
         <dotlottie-player
-        className="pb-2"
+          className="pb-2"
           src="https://lottie.host/c6910638-ab7a-4a70-bbf7-1c7d0102ae2e/7f6l4G6W5j.lottie"
           background="transparent"
           speed="1"
@@ -59,29 +60,27 @@ export default function VipAdSlider({ vipAds = [] }) {
         className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide cursor-grab"
       >
         {vipAds.map((ad, index) => (
-          <div
+          <Link
             key={index}
+            href={`/ads/${createSlug(ad)}`}
             className="min-w-[160px] h-[240px] flex-shrink-0 rounded-xl border-[3px] border-yellow-500 bg-gradient-to-br from-black to-[#1a1a1a] shadow-lg hover:scale-105 transition overflow-hidden relative"
           >
             {/* Image */}
             <div className="relative w-full h-full">
               <Image
                 src={getImageUrl(ad.image)}
-                alt={ad.title}
+                alt={`SriAdz - ${ad.title}`}
                 fill
                 className="object-cover w-full h-full"
               />
 
               {/* Overlay Text */}
               <div className="absolute bottom-0 left-0 w-full px-2 py-2 bg-gradient-to-t from-black via-black/80 to-transparent text-white">
-                <p className="text-sm font-semibold">
-                  {/* <span className="text-green-400">{ad.username || 'Anonymous'}</span>{' '} */}
-                </p>
                 <p className="text-xs text-gray-300 line-clamp-1">{ad.title}</p>
                 <span className="text-green-500 text-sm italic">is online now</span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

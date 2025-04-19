@@ -4,19 +4,16 @@ const reportSchema = new mongoose.Schema({
   adId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Ad',
-    required: true
+    required: true,
   },
-  reason: {
+  message: {
     type: String,
-    required: true
+    required: true,
   },
-  reporterEmail: String,
-  reporterPhone: String,
-  createdAt: {
+  reportedAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   }
 });
 
 export default mongoose.model('Report', reportSchema);
-

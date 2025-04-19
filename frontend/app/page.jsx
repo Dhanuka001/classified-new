@@ -8,6 +8,9 @@ import { SearchBar, FilterSidebar } from './components/SearchFilter';
 import Pagination from './components/Pagination';
 import FloatingChatBox from './components/FloatingChatBox';
 import { toast } from 'react-toastify';
+import { FiFilter } from 'react-icons/fi';
+import Head from 'next/head';
+
 
 export default function HomePage() {
   const [allAds, setAllAds] = useState([]);
@@ -15,6 +18,7 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const adsPerPage = 12;
 
@@ -67,7 +71,41 @@ export default function HomePage() {
   const totalPages = Math.ceil(allAds.length / adsPerPage);
 
   return (
+    <>
+    <Head>
+        <title>SriAdz - Explore Ads | Live Cam, Girls Personal, Spa & More</title>
+        <meta name="description" content="Discover verified Sri Lankan ads from live cam girls, personal spa services, and more. Updated daily. Browse VIP, Super, and Normal ads." />
+        <meta name="keywords" content="SriAdz, spa colombo, live cam girl, whatsapp cam, sri lanka ads, girls personal, adult classified, sri lanka escort, sri lanka massage" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="SriAdz - Explore All Ads" />
+        <meta property="og:description" content="Find trending classified ads for live cam, spa, and more across Sri Lanka. 100% verified." />
+        <meta property="og:url" content="https://www.sriadz.com" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="/og-preview.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "SriAdz - Explore Ads",
+            "description": "Explore Sri Lankan classified ads like spa colombo, live cam girls, and more. VIP, Super, and Normal ads updated regularly.",
+            "url": "https://www.sriadz.com",
+          }),
+        }}
+      />
+
     <div className="min-h-screen w-full overflow-x-hidden">
+
+    <div className="flex justify-between items-center px-4 sm:px-10 mt-4 z-40 lg:hidden">
+      <h2 className="text-white font-bold text-lg">Filter Ads</h2>
+      <button onClick={() => setShowSidebar(true)} className="text-pink-400 bg-[#1a1a1a] p-2 rounded">
+        <FiFilter />
+      </button>
+    </div>
 
       {/* Category Tabs */}
       <div className="flex justify-center gap-2 sm:gap-4 pt-4 pb-2 px-4 overflow-x-auto">
@@ -111,7 +149,14 @@ export default function HomePage() {
         <div className="flex flex-col lg:flex-row gap-10 md:px-32">
           {/* Sidebar */}
           <div className="w-full lg:w-1/5 border-r md:pr-6 border-gray-700">
-            <FilterSidebar />
+          <FilterSidebar
+            showSidebar={showSidebar}
+            setShowSidebar={setShowSidebar}
+            onSelectCategory={(slug) => {
+              setSelectedCategory(slug);
+              setCurrentPage(1);
+            }}
+          />
           </div>
 
           {/* Main Content */}
@@ -145,5 +190,7 @@ export default function HomePage() {
 
       <FloatingChatBox />
     </div>
+
+    </>
   );
 }

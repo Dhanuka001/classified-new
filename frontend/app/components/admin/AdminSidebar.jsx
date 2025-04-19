@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiHome, FiUsers, FiDollarSign, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiUsers, FiDollarSign, FiLogOut, FiMenu, FiX, FiFlag } from 'react-icons/fi';
 import Link from 'next/link';
 
 export default function AdminSidebar() {
@@ -44,6 +44,9 @@ export default function AdminSidebar() {
             </Link>
             <Link href="/admin/payments" className="flex items-center gap-2 text-gray-300 hover:text-[#ff3399] transition-colors">
               <FiDollarSign /> Payments
+            </Link>
+            <Link href="/admin/reported-ads" className="flex items-center gap-2 text-gray-300 hover:text-[#ff3399] transition-colors">
+              <FiFlag /> Reported Ads
             </Link>
             <button
               onClick={handleLogout}
