@@ -231,7 +231,7 @@ export default function HomePage() {
         </div>
 
         <FloatingChatBox />
-        <div className="px-4 sm:px-6 lg:px-10 max-w-[960px] mx-auto mt-4">
+        <div className="px-4 sm:px-6 lg:px-10 max-w-[960px] mx-auto mt-4 mb-4">
           <div className="bg-[#1a1a1a] border border-[#333] rounded-md p-4 md:p-6 text-gray-300 text-xs sm:text-base leading-relaxed shadow-md">
             <p>
               <strong>SriAdz</strong> is Sri Lanka’s hottest and most trusted classified ad site. Explore updated listings for 
