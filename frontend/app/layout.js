@@ -43,7 +43,7 @@ export const metadata = {
     images: ['/preview.png'],
   },
   icons: {
-    icon: '/favicon.png',
+    icon: '/favicon.ico',
   },
 };
 
