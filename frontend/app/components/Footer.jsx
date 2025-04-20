@@ -30,6 +30,9 @@ export default function Footer() {
             <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
             <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
             <li><Link href="/faq" className="hover:text-white">FAQs</Link></li>
+            <li><Link href="/find-cam-girl" className="hover:text-white">Find Best Cam Girls</Link></li>
+            <li><Link href="/find-spa-colombo" className="hover:text-white">Find Spa in Colombo</Link></li>
+            <li><Link href="/find-VIP-full-service-in-colombo" className="hover:text-white">Find Best VIP Full Services</Link></li>
           </ul>
         </div>
 

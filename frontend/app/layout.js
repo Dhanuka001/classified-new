@@ -6,7 +6,8 @@ import Footer from './components/Footer';
 
 export const metadata = {
   title: 'SriAdz | Sri Lanka’s Hottest Classifieds Platform',
-  description: 'Find verified live cam girls, personal ads, spas, rooms and more. Safe, sexy, and fast. Competing with Hela Lanka Ads and OK Ads.',
+  description: 'SriAdz is Sri Lanka’s trusted adult classifieds platform for verified spa services, live cam girls, personal ads, room rentals, and more. Post or explore ads with VIP, Super, and Normal options in Colombo and beyond.',
+
   keywords: [
     'spa colombo',
     'live cam girl',

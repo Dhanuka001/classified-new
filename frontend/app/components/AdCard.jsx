@@ -54,11 +54,11 @@ export default function AdCard({ ad }) {
 
         {/* Content */}
         <div className="flex flex-col justify-between py-2 pl-3 pr-4 w-full relative overflow-hidden">
-          {(isVIP || isSuper) && (
+          {/* {(isVIP || isSuper) && (
             <span className="absolute top-2 right-2 text-[10px] text-green-400 font-medium italic">
               🟢 Last Seen {ad.lastSeen}
             </span>
-          )}
+          )} */}
 
           {/* Cashback Badge */}
           {ad.cashbackGuarantee && (

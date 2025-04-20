@@ -1,15 +1,31 @@
-import { FaHeart, FaTimes } from 'react-icons/fa';
+import { FaHeart, FaTimes, FaTimesCircle } from 'react-icons/fa';
 
-export function SearchBar() {
+export function SearchBar({ searchQuery, setSearchQuery, onSearch, onClear }) {
   return (
-    <div className="flex justify-center  px-10">
-      <div className="flex w-full max-w-xl">
+    <div className="flex justify-center px-10">
+      <div className="flex w-full max-w-xl relative">
         <input
           type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') onSearch();
+          }}
           placeholder="Search by title or location..."
           className="flex-1 px-4 py-2 rounded-l-md bg-[#1a1a1a] text-white border border-[#ff3399] outline-none"
         />
-        <button className="px-4 py-2 bg-[#ff3399] text-white font-semibold rounded-r-md hover:bg-pink-700 transition">
+        {searchQuery && (
+          <button
+            onClick={onClear}
+            className="absolute right-20 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+          >
+            <FaTimesCircle size={18} />
+          </button>
+        )}
+        <button
+          onClick={onSearch}
+          className="px-4 py-2 bg-[#ff3399] text-white font-semibold rounded-r-md hover:bg-pink-700 transition"
+        >
           Search
         </button>
       </div>
@@ -46,7 +62,7 @@ export function FilterSidebar({ onSelectCategory, showSidebar, setShowSidebar })
             <FaTimes />
           </button>
         </div>
-        <ul className="space-y-2 ">
+        <ul className="space-y-2">
           {quickLinks.map((link, index) => (
             <li key={index}>
               <button

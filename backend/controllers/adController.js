@@ -104,15 +104,25 @@ export const submitPayment = [
 // ✅ Get All Approved Ads (Public)
 export const getAllAds = async (req, res) => {
   try {
-    const { category } = req.query;
-    const query = category
-      ? { category, isApproved: true }
-      : { isApproved: true };
+    const { category, search } = req.query;
+    const query = { isApproved: true };
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } }, // Case-insensitive search on title
+        { description: { $regex: search, $options: 'i' } }, // Case-insensitive search on description
+      ];
+    }
+
     const ads = await Ad.find(query).sort({ createdAt: -1 });
     res.status(200).json(ads);
   } catch (err) {
     console.error('Get all ads error:', err.message);
-    res.status(500).json({ message: '❌ Failed to fetch ads. Please try again later.' });
+    res.status(500).json([]); // Return empty array on error to avoid "Invalid data format"
   }
 };
 
