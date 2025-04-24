@@ -1,9 +1,4 @@
-# *
 User-agent: *
 Allow: /
 
-# Host
-Host: https://www.sriadz.com
-
-# Sitemaps
 Sitemap: https://www.sriadz.com/sitemap.xml
