@@ -26,7 +26,7 @@ export default function WhySriAdzSpaAds() {
       
       <div className="mb-8">
         <Image
-          src="/image1.jpg"
+          src="/image-1.jpg"
           alt="Premium spa experience in Sri Lanka with SriAdz"
           width={800}
           height={400}
@@ -79,7 +79,7 @@ export default function WhySriAdzSpaAds() {
 
       <div className="mb-8">
         <Image
-          src="/image2.jpg"
+          src="/image-2.jpg"
           alt="Sensual massage room in Sri Lanka via SriAdz"
           width={800}
           height={400}

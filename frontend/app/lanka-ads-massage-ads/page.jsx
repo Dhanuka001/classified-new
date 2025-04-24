@@ -27,7 +27,7 @@ export default function SriAdzHelaAdsMassage() {
       
       <div className="mb-8">
         <Image
-          src="/image8.jpg"
+          src="/image-11.jpg"
           alt="Luxurious spa setting in Sri Lanka with SriAdz"
           width={800}
           height={400}
@@ -80,7 +80,7 @@ export default function SriAdzHelaAdsMassage() {
 
       <div className="mb-8">
         <Image
-          src="/images/spa-lounge.jpg"
+          src="/image-3.jpg"
           alt="Relaxing spa lounge in Sri Lanka via SriAdz"
           width={800}
           height={400}

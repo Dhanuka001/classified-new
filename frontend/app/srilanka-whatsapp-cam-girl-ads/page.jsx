@@ -26,7 +26,7 @@ export default function WhatsAppCamGirlAds() {
       
       <div className="mb-8">
         <Image
-          src="/image22.jpg"
+          src="/image-2.jpg"
           alt="WhatsApp cam girl service in Sri Lanka via SriAdz"
           width={800}
           height={400}
@@ -79,7 +79,7 @@ export default function WhatsAppCamGirlAds() {
 
       <div className="mb-8">
         <Image
-          src="/image10.jpg"
+          src="/image-1.jpg"
           alt="Private WhatsApp cam girl session via SriAdz"
           width={800}
           height={400}
