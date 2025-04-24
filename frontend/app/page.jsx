@@ -20,7 +20,7 @@ export default function HomePage() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const adsPerPage = 12;
+  const adsPerPage = 50;
 
   const categories = [
     { display: 'Live Cam', slug: 'live-cam' },
@@ -233,12 +233,16 @@ export default function HomePage() {
         <FloatingChatBox />
         <div className="px-4 sm:px-6 lg:px-10 max-w-[960px] mx-auto mt-4 mb-4">
           <div className="bg-[#1a1a1a] border border-[#333] rounded-md p-4 md:p-6 text-gray-300 text-xs sm:text-base leading-relaxed shadow-md">
-            <p>
-              <strong>SriAdz</strong> is Sri Lanka’s hottest and most trusted classified ad site. Explore updated listings for 
-              <strong> spa services in Colombo</strong>, <strong>live cam girls</strong>, <strong>personal encounters</strong>, 
-              <strong> room rentals</strong>, and more. We promote real, verified ads in 
-              <strong> VIP</strong>, <strong>Super</strong>, and <strong>Normal</strong> categories. Post or browse with ease — SriAdz is safe, fast, and built for adults.
-            </p>
+          <p>
+          <strong>SriAdz</strong> is Sri Lanka’s hottest and most trusted classified ad platform — your best alternative to 
+          <strong>SL Ads</strong>, <strong>Hela Ads</strong>, <strong>Lanka Ads</strong>, and <strong>OK Ads</strong>. Discover real listings for 
+          <strong> spa ads</strong>, <strong>Lanka spa services</strong>, <strong>massage in Colombo</strong>, <strong>badu numbers</strong>, and 
+          <strong>wal kacha personal encounters</strong>. Whether you're looking for <strong>live cam girls</strong>, 
+          <strong>room rentals</strong>, or just scrolling through the latest <strong>ads in Lanka</strong>, SriAdz delivers updated, verified posts daily. 
+          Browse or post in <strong>VIP</strong>, <strong>Super</strong>, and <strong>Normal</strong> ad categories. Fast, safe, and made for adult users — 
+          <strong>SriAdz</strong> is where Sri Lanka connects.
+        </p>
+
           </div>
         </div>
       </div>
